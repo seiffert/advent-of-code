@@ -30,15 +30,15 @@ var (
 	}
 
 	cache = map[string]uint16{}
+	gates = map[string]Gate{}
 )
 
-type Gate func(map[string]Gate) uint16
+type Gate func() uint16
 
 type GateConstructor func(...string) Gate
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
-	gates := map[string]Gate{}
 	for scanner.Scan() {
 		line := scanner.Text()
 
@@ -49,13 +49,13 @@ func main() {
 	wire := os.Args[1]
 	wire2 := os.Args[2]
 
-	result := gates[wire](gates)
+	result := gates[wire]()
 	fmt.Printf("wire %s: %d\n", wire, result)
 	fmt.Printf("now setting wire %s to %d\n", wire2, result)
 	gates[wire2] = ScalarGate(result)
 	cache = map[string]uint16{}
 
-	fmt.Printf("wire %s: %d\n", wire, gates[wire](gates))
+	fmt.Printf("wire %s: %d\n", wire, gates[wire]())
 }
 
 func parseGate(s string) (string, Gate) {
@@ -78,12 +78,12 @@ func parseGate(s string) (string, Gate) {
 }
 
 func CachingGate(s string, g Gate) Gate {
-	return func(gates map[string]Gate) uint16 {
+	return func() uint16 {
 		if v, ok := cache[s]; ok {
 			return v
 		}
 
-		cache[s] = g(gates)
+		cache[s] = g()
 		return cache[s]
 	}
 }
@@ -91,51 +91,51 @@ func CachingGate(s string, g Gate) Gate {
 func LshiftGate(args ...string) Gate {
 	in := SimpleGate(args[0])
 	by := SimpleGate(args[1])
-	return func(gates map[string]Gate) uint16 {
-		return in(gates) << by(gates)
+	return func() uint16 {
+		return in() << by()
 	}
 }
 
 func RshiftGate(args ...string) Gate {
 	in := SimpleGate(args[0])
 	by := SimpleGate(args[1])
-	return func(gates map[string]Gate) uint16 {
-		return in(gates) >> by(gates)
+	return func() uint16 {
+		return in() >> by()
 	}
 }
 
 func ScalarGate(v uint16) Gate {
-	return func(gates map[string]Gate) uint16 {
+	return func() uint16 {
 		return v
 	}
 }
 
-func VarGate(in string) Gate {
-	return func(gates map[string]Gate) uint16 {
-		return gates[in](gates)
+func VarGate(arg string) Gate {
+	return func() uint16 {
+		return gates[arg]()
 	}
 }
 
 func AndGate(args ...string) Gate {
 	a := SimpleGate(args[0])
 	b := SimpleGate(args[1])
-	return func(gates map[string]Gate) uint16 {
-		return a(gates) & b(gates)
+	return func() uint16 {
+		return a() & b()
 	}
 }
 
 func OrGate(args ...string) Gate {
 	a := SimpleGate(args[0])
 	b := SimpleGate(args[1])
-	return func(gates map[string]Gate) uint16 {
-		return a(gates) | b(gates)
+	return func() uint16 {
+		return a() | b()
 	}
 }
 
 func NotGate(args ...string) Gate {
 	in := SimpleGate(args[0])
-	return func(gates map[string]Gate) uint16 {
-		return 65535 - in(gates)
+	return func() uint16 {
+		return 65535 - in()
 	}
 }
 
