@@ -10,14 +10,7 @@ import (
 )
 
 var (
-	GateRegexp   = regexp.MustCompile("^([a-zA-Z0-9 ]+) -> ([a-z]+)$")
-	LshiftRegexp = regexp.MustCompile("^([a-z0-9]+) LSHIFT ([0-9a-z]+)$")
-	RshiftRegexp = regexp.MustCompile("^([a-z0-9]+) RSHIFT ([0-9a-z]+)$")
-	AndRegexp    = regexp.MustCompile("^([a-z0-9]+) AND ([a-z0-9]+)$")
-	OrRegexp     = regexp.MustCompile("^([a-z0-9]+) OR ([a-z0-9]+)$")
-	NotRegexp    = regexp.MustCompile("^NOT ([a-z0-9]+)$")
-	ScalarRegexp = regexp.MustCompile("^([0-9]+)$")
-	VarRegexp    = regexp.MustCompile("^([a-z]+)$")
+	GateRegexp = regexp.MustCompile("^([a-zA-Z0-9 ]+) -> ([a-z]+)$")
 
 	GateConstructors = map[*regexp.Regexp]GateConstructor{
 		regexp.MustCompile("^([a-z0-9]+) LSHIFT ([0-9a-z]+)$"): LshiftGate,
@@ -140,9 +133,9 @@ func NotGate(args ...string) Gate {
 }
 
 func SimpleGate(args ...string) Gate {
-	if i, err := strconv.ParseUint(args[0], 10, 16); err != nil {
+	i, err := strconv.ParseUint(args[0], 10, 16)
+	if err != nil {
 		return VarGate(args[0])
-	} else {
-		return ScalarGate(uint16(i))
 	}
+	return ScalarGate(uint16(i))
 }
