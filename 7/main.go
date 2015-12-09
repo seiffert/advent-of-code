@@ -19,8 +19,22 @@ var (
 	ScalarRegexp = regexp.MustCompile("^([0-9]+)$")
 	VarRegexp    = regexp.MustCompile("^([a-z]+)$")
 
+	GateConstructors = map[*regexp.Regexp]GateConstructor{
+		regexp.MustCompile("^([a-z0-9]+) LSHIFT ([0-9a-z]+)$"): LshiftGate,
+		regexp.MustCompile("^([a-z0-9]+) RSHIFT ([0-9a-z]+)$"): RshiftGate,
+		regexp.MustCompile("^([a-z0-9]+) AND ([a-z0-9]+)$"):    AndGate,
+		regexp.MustCompile("^([a-z0-9]+) OR ([a-z0-9]+)$"):     OrGate,
+		regexp.MustCompile("^NOT ([a-z0-9]+)$"):                NotGate,
+		regexp.MustCompile("^([0-9]+)$"):                       SimpleGate,
+		regexp.MustCompile("^([a-z]+)$"):                       SimpleGate,
+	}
+
 	cache = map[string]uint16{}
 )
+
+type Gate func(map[string]Gate) uint16
+
+type GateConstructor func(...string) Gate
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
@@ -44,7 +58,24 @@ func main() {
 	fmt.Printf("wire %s: %d\n", wire, gates[wire](gates))
 }
 
-type Gate func(map[string]Gate) uint16
+func parseGate(s string) (string, Gate) {
+	matches := GateRegexp.FindAllStringSubmatch(s, -1)
+	if len(matches) < 1 {
+		log.Fatalf("No match found in line %s", s)
+	}
+
+	in := matches[0][1]
+	out := matches[0][2]
+
+	for regexp, constructor := range GateConstructors {
+		if regexp.MatchString(in) {
+			args := regexp.FindAllStringSubmatch(in, -1)
+			return out, CachingGate(s, constructor(args[0][1:]...))
+		}
+	}
+
+	return "", nil
+}
 
 func CachingGate(s string, g Gate) Gate {
 	return func(gates map[string]Gate) uint16 {
@@ -57,13 +88,17 @@ func CachingGate(s string, g Gate) Gate {
 	}
 }
 
-func LshiftGate(in Gate, by Gate) Gate {
+func LshiftGate(args ...string) Gate {
+	in := SimpleGate(args[0])
+	by := SimpleGate(args[1])
 	return func(gates map[string]Gate) uint16 {
 		return in(gates) << by(gates)
 	}
 }
 
-func RshiftGate(in Gate, by Gate) Gate {
+func RshiftGate(args ...string) Gate {
+	in := SimpleGate(args[0])
+	by := SimpleGate(args[1])
 	return func(gates map[string]Gate) uint16 {
 		return in(gates) >> by(gates)
 	}
@@ -81,71 +116,33 @@ func VarGate(in string) Gate {
 	}
 }
 
-func AndGate(a, b Gate) Gate {
+func AndGate(args ...string) Gate {
+	a := SimpleGate(args[0])
+	b := SimpleGate(args[1])
 	return func(gates map[string]Gate) uint16 {
 		return a(gates) & b(gates)
 	}
 }
 
-func OrGate(a, b Gate) Gate {
+func OrGate(args ...string) Gate {
+	a := SimpleGate(args[0])
+	b := SimpleGate(args[1])
 	return func(gates map[string]Gate) uint16 {
 		return a(gates) | b(gates)
 	}
 }
 
-func NotGate(in Gate) Gate {
+func NotGate(args ...string) Gate {
+	in := SimpleGate(args[0])
 	return func(gates map[string]Gate) uint16 {
 		return 65535 - in(gates)
 	}
 }
 
-func parseGate(s string) (string, Gate) {
-	matches := GateRegexp.FindAllStringSubmatch(s, -1)
-	if len(matches) < 1 {
-		log.Fatalf("No match found in line %s", s)
+func SimpleGate(args ...string) Gate {
+	if i, err := strconv.ParseUint(args[0], 10, 16); err != nil {
+		return VarGate(args[0])
+	} else {
+		return ScalarGate(uint16(i))
 	}
-
-	in := matches[0][1]
-	out := matches[0][2]
-
-	var gate Gate
-	switch {
-	case LshiftRegexp.MatchString(in):
-		operands := LshiftRegexp.FindAllStringSubmatch(in, -1)
-		gate = LshiftGate(parseSimple(operands[0][1]), parseSimple(operands[0][2]))
-	case RshiftRegexp.MatchString(in):
-		operands := RshiftRegexp.FindAllStringSubmatch(in, -1)
-		gate = RshiftGate(parseSimple(operands[0][1]), parseSimple(operands[0][2]))
-	case AndRegexp.MatchString(in):
-		operands := AndRegexp.FindAllStringSubmatch(in, -1)
-		gate = AndGate(parseSimple(operands[0][1]), parseSimple(operands[0][2]))
-	case OrRegexp.MatchString(in):
-		operands := OrRegexp.FindAllStringSubmatch(in, -1)
-		gate = OrGate(parseSimple(operands[0][1]), parseSimple(operands[0][2]))
-	case NotRegexp.MatchString(in):
-		operand := NotRegexp.FindAllStringSubmatch(in, -1)
-		gate = NotGate(parseSimple(operand[0][1]))
-	case ScalarRegexp.MatchString(in):
-		fallthrough
-	case VarRegexp.MatchString(in):
-		gate = parseSimple(in)
-	default:
-		log.Fatalf("Could not parse %s", s)
-	}
-
-	return out, CachingGate(s, gate)
-}
-
-func parseSimple(s string) Gate {
-	if _, err := strconv.ParseUint(s, 10, 16); err != nil {
-		return VarGate(s)
-	}
-
-	return ScalarGate(i(s))
-}
-
-func i(s string) uint16 {
-	i, _ := strconv.ParseUint(s, 10, 16)
-
-	return uint16(i)
 }
