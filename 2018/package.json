@@ -1,0 +1,39 @@
+{
+  "name": "1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "1": "babel-node 1/main.js",
+    "2": "babel-node 2/main.js",
+    "3": "babel-node 3/main.js",
+    "4": "babel-node 4/main.js",
+    "5": "babel-node 5/main.js",
+    "6": "babel-node 6/main.js",
+    "7": "babel-node 7/main.js",
+    "8": "babel-node 8/main.js",
+    "9": "babel-node 9/main.js",
+    "10": "babel-node 10/main.js",
+    "11": "babel-node 11/main.js",
+    "12": "babel-node 12/main.js",
+    "13": "babel-node 13/main.js",
+    "14": "babel-node 14/main.js",
+    "test": "jest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "core-js": "^2.6.1",
+    "jest": "^23.6.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
+    "babel-eslint": "^10.0.1",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-preset-env": "^1.7.0",
+    "eslint": "^5.9.0",
+    "eslint-plugin-import": "^2.14.0"
+  }
+}
