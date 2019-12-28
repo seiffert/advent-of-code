@@ -3,11 +3,13 @@ package main
 import (
 	"fmt"
 	"os"
+
+	"github.com/seiffert/advent-of-code/2019/lib"
 )
 
 func main() {
 	if len(os.Args) != 2 {
-		abort("expects the input as argument, got none")
+		lib.Abort("expects the input as argument, got none")
 	}
 
 	p := Parse(os.Args[1])
@@ -15,7 +17,7 @@ func main() {
 
 	result, err := c.Calculate()
 	if err != nil {
-		abort(err.Error())
+		lib.Abort("Error calculating result: %w", err)
 	}
 
 	fmt.Printf("Result for noun 12 and verb 2: %d\n", result)
@@ -38,15 +40,10 @@ func main() {
 		return nil
 	})
 	if err != nil {
-		abort(err.Error())
+		lib.Abort(err.Error())
 	}
 
 	fmt.Printf("To produce result '19690720', use noun %d and verb %d.\n",
 		noun, verb,
 	)
-}
-
-func abort(format string, args ...interface{}) {
-	fmt.Fprintf(os.Stderr, format+"\n", args...)
-	os.Exit(1)
 }

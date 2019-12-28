@@ -1,10 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"strconv"
 	"strings"
+
+	"github.com/seiffert/advent-of-code/2019/lib"
 )
 
 func FuelForMass(mass int) int {
@@ -25,7 +26,7 @@ func FuelForMassAndFuel(mass int) int {
 func main() {
 	in, err := ioutil.ReadFile("input.txt")
 	if err != nil {
-		panic(err)
+		lib.Abort("Error reading input file result: %w", err)
 	}
 
 	lines := strings.Split(string(in), "\n")
@@ -38,7 +39,7 @@ func main() {
 
 		mass, err := strconv.Atoi(line)
 		if err != nil {
-			panic(fmt.Sprintf("not a number: %s", line))
+			lib.Abort("Not a number: %s", line)
 		}
 
 		withoutFuel += FuelForMass(mass)
