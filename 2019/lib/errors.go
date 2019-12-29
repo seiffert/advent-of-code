@@ -6,6 +6,6 @@ import (
 )
 
 func Abort(format string, args ...interface{}) {
-	fmt.Fprintf(os.Stderr, format+"\n", args...)
+	fmt.Fprintln(os.Stderr, fmt.Errorf(format, args...).Error())
 	os.Exit(1)
 }
