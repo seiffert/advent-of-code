@@ -8,10 +8,8 @@ const (
 	opcodeTerminate = 99
 )
 
-func NewComputer(p []int, noun, verb int) *Computer {
+func NewComputer(p []int) *Computer {
 	mem := append([]int(nil), p...)
-	mem[1] = noun
-	mem[2] = verb
 	return &Computer{
 		memory: mem,
 	}
@@ -32,7 +30,7 @@ func (c *Computer) Calculate() error {
 				addrResult = c.memory[c.ic+3]
 			)
 
-			c.set(addrResult, c.Get(addrOp1)+c.Get(addrOp2))
+			c.Set(addrResult, c.Get(addrOp1)+c.Get(addrOp2))
 			c.ic += 4
 		case opcodeMultiply:
 			var (
@@ -41,7 +39,7 @@ func (c *Computer) Calculate() error {
 				addrResult = c.memory[c.ic+3]
 			)
 
-			c.set(addrResult, c.Get(addrOp1)*c.Get(addrOp2))
+			c.Set(addrResult, c.Get(addrOp1)*c.Get(addrOp2))
 			c.ic += 4
 		case opcodeTerminate:
 			return nil
@@ -58,7 +56,7 @@ func (c *Computer) Get(addr int) int {
 	return 0
 }
 
-func (c *Computer) set(addr, val int) {
+func (c *Computer) Set(addr, val int) {
 	if addr >= len(c.memory) {
 		c.growMemory(addr - len(c.memory) + 1)
 	}

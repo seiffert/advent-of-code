@@ -14,7 +14,9 @@ func main() {
 	}
 
 	p := intcode.Parse(os.Args[1])
-	c := intcode.NewComputer(p, 12, 2)
+	c := intcode.NewComputer(p)
+	c.Set(1, 12)
+	c.Set(2, 2)
 
 	if err := c.Calculate(); err != nil {
 		lib.Abort("Error calculating result: %w", err)
@@ -22,7 +24,9 @@ func main() {
 	fmt.Printf("Result for noun 12 and verb 2: %d\n", c.Get(0))
 
 	noun, verb, err := IterMatrix(func(noun, verb int) error {
-		c := intcode.NewComputer(p, noun, verb)
+		c := intcode.NewComputer(p)
+		c.Set(1, noun)
+		c.Set(2, verb)
 
 		if err := c.Calculate(); err != nil {
 			return fmt.Errorf("%s: %w",
