@@ -21,7 +21,7 @@ func main() {
 	if err := c.Calculate(); err != nil {
 		lib.Abort("Error calculating result: %w", err)
 	}
-	fmt.Printf("Result for noun 12 and verb 2: %d\n", c.Get(0))
+	fmt.Printf("Result for noun 12 and verb 2: %d\n", c.Get(0, intcode.ModeImmediate))
 
 	noun, verb, err := IterMatrix(func(noun, verb int) error {
 		c := intcode.NewComputer(p)
@@ -34,7 +34,7 @@ func main() {
 			)
 		}
 
-		result := c.Get(0)
+		result := c.Get(0, intcode.ModeImmediate)
 		if result != 19690720 {
 			return fmt.Errorf("not the expected result: %w",
 				ErrCantorTemporaryErr,

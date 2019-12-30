@@ -7,6 +7,9 @@ import (
 )
 
 const (
+	ModePosition  = 0
+	ModeImmediate = 1
+
 	opcodeAdd       = 1
 	opcodeMultiply  = 2
 	opcodeInput     = 3
@@ -28,29 +31,29 @@ type Computer struct {
 
 func (c *Computer) Calculate() error {
 	for {
-		switch opcode := c.memory[c.ic]; opcode {
-		case opcodeAdd:
-			var (
-				addrOp1    = c.memory[c.ic+1]
-				addrOp2    = c.memory[c.ic+2]
-				addrResult = c.memory[c.ic+3]
-			)
+		var (
+			instruction = c.memory[c.ic]
+			opcode      = instruction % 100
+			param1Mode  = instruction % 1000 / 100
+			param2Mode  = instruction % 10000 / 1000
+			//param3Mode  = instruction % 100000 / 10000
+		)
 
-			c.Set(addrResult, c.Get(addrOp1)+c.Get(addrOp2))
+		switch opcode {
+		case opcodeAdd:
+			c.Set(
+				c.Get(c.ic+3, ModeImmediate),
+				c.Get(c.ic+1, param1Mode)+c.Get(c.ic+2, param2Mode),
+			)
 			c.ic += 4
 		case opcodeMultiply:
-			var (
-				addrOp1    = c.memory[c.ic+1]
-				addrOp2    = c.memory[c.ic+2]
-				addrResult = c.memory[c.ic+3]
+			c.Set(
+				c.Get(c.ic+3, ModeImmediate),
+				c.Get(c.ic+1, param1Mode)*c.Get(c.ic+2, param2Mode),
 			)
-
-			c.Set(addrResult, c.Get(addrOp1)*c.Get(addrOp2))
 			c.ic += 4
 		case opcodeInput:
 			var (
-				addrResult = c.memory[c.ic+1]
-
 				valid bool
 				input int
 			)
@@ -64,12 +67,10 @@ func (c *Computer) Calculate() error {
 				}
 			}
 
-			c.Set(addrResult, input)
+			c.Set(c.Get(c.ic+1, ModeImmediate), input)
 			c.ic += 2
 		case opcodeOutput:
-			addrOp := c.memory[c.ic+1]
-
-			fmt.Printf("Output from addr %d: %d\n", addrOp, c.Get(addrOp))
+			fmt.Printf("Output: %d\n", c.Get(c.ic+1, param1Mode))
 			c.ic += 2
 		case opcodeTerminate:
 			return nil
@@ -79,7 +80,11 @@ func (c *Computer) Calculate() error {
 	}
 }
 
-func (c *Computer) Get(addr int) int {
+func (c *Computer) Get(addr, mode int) int {
+	if mode == ModePosition {
+		addr = c.Get(addr, ModeImmediate)
+	}
+
 	if addr < len(c.memory) {
 		return c.memory[addr]
 	}
