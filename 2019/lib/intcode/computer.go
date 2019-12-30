@@ -10,11 +10,15 @@ const (
 	ModePosition  = 0
 	ModeImmediate = 1
 
-	opcodeAdd       = 1
-	opcodeMultiply  = 2
-	opcodeInput     = 3
-	opcodeOutput    = 4
-	opcodeTerminate = 99
+	opcodeAdd         = 1
+	opcodeMultiply    = 2
+	opcodeInput       = 3
+	opcodeOutput      = 4
+	opcodeJumpIfTrue  = 5
+	opcodeJumpIfFalse = 6
+	opcodeLessThan    = 7
+	opcodeEquals      = 8
+	opcodeTerminate   = 99
 )
 
 func NewComputer(p []int) *Computer {
@@ -72,6 +76,32 @@ func (c *Computer) Calculate() error {
 		case opcodeOutput:
 			fmt.Printf("Output: %d\n", c.Get(c.ic+1, param1Mode))
 			c.ic += 2
+		case opcodeJumpIfTrue:
+			if c.Get(c.ic+1, param1Mode) != 0 {
+				c.ic = c.Get(c.ic+2, param2Mode)
+			} else {
+				c.ic += 3
+			}
+		case opcodeJumpIfFalse:
+			if c.Get(c.ic+1, param1Mode) == 0 {
+				c.ic = c.Get(c.ic+2, param2Mode)
+			} else {
+				c.ic += 3
+			}
+		case opcodeLessThan:
+			if c.Get(c.ic+1, param1Mode) < c.Get(c.ic+2, param2Mode) {
+				c.Set(c.Get(c.ic+3, ModeImmediate), 1)
+			} else {
+				c.Set(c.Get(c.ic+3, ModeImmediate), 0)
+			}
+			c.ic += 4
+		case opcodeEquals:
+			if c.Get(c.ic+1, param1Mode) == c.Get(c.ic+2, param2Mode) {
+				c.Set(c.Get(c.ic+3, ModeImmediate), 1)
+			} else {
+				c.Set(c.Get(c.ic+3, ModeImmediate), 0)
+			}
+			c.ic += 4
 		case opcodeTerminate:
 			return nil
 		default:
