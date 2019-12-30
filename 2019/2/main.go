@@ -16,23 +16,21 @@ func main() {
 	p := intcode.Parse(os.Args[1])
 	c := intcode.NewComputer(p, 12, 2)
 
-	result, err := c.Calculate()
-	if err != nil {
+	if err := c.Calculate(); err != nil {
 		lib.Abort("Error calculating result: %w", err)
 	}
-
-	fmt.Printf("Result for noun 12 and verb 2: %d\n", result)
+	fmt.Printf("Result for noun 12 and verb 2: %d\n", c.Get(0))
 
 	noun, verb, err := IterMatrix(func(noun, verb int) error {
 		c := intcode.NewComputer(p, noun, verb)
 
-		result, err := c.Calculate()
-		if err != nil {
+		if err := c.Calculate(); err != nil {
 			return fmt.Errorf("%s: %w",
 				err.Error(), ErrCantorTemporaryErr,
 			)
 		}
 
+		result := c.Get(0)
 		if result != 19690720 {
 			return fmt.Errorf("not the expected result: %w",
 				ErrCantorTemporaryErr,

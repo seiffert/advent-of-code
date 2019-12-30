@@ -22,7 +22,7 @@ type Computer struct {
 	ic     int
 }
 
-func (c *Computer) Calculate() (int, error) {
+func (c *Computer) Calculate() error {
 	for {
 		switch opcode := c.memory[c.ic]; opcode {
 		case opcodeAdd:
@@ -32,7 +32,7 @@ func (c *Computer) Calculate() (int, error) {
 				addrResult = c.memory[c.ic+3]
 			)
 
-			c.set(addrResult, c.get(addrOp1)+c.get(addrOp2))
+			c.set(addrResult, c.Get(addrOp1)+c.Get(addrOp2))
 			c.ic += 4
 		case opcodeMultiply:
 			var (
@@ -41,17 +41,17 @@ func (c *Computer) Calculate() (int, error) {
 				addrResult = c.memory[c.ic+3]
 			)
 
-			c.set(addrResult, c.get(addrOp1)*c.get(addrOp2))
+			c.set(addrResult, c.Get(addrOp1)*c.Get(addrOp2))
 			c.ic += 4
 		case opcodeTerminate:
-			return c.memory[0], nil
+			return nil
 		default:
-			return 0, fmt.Errorf("unknown opcode %d", opcode)
+			return fmt.Errorf("unknown opcode %d", opcode)
 		}
 	}
 }
 
-func (c *Computer) get(addr int) int {
+func (c *Computer) Get(addr int) int {
 	if addr < len(c.memory) {
 		return c.memory[addr]
 	}

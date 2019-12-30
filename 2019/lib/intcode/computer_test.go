@@ -19,8 +19,7 @@ func TestComputer_Calculate(t *testing.T) {
 			r := require.New(t)
 
 			p := NewComputer(Parse(in))
-			_, err := p.Calculate()
-			r.NoError(err)
+			r.NoError(p.Calculate())
 
 			r.Equal(Parse(out), p.memory)
 		})
