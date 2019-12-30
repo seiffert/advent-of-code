@@ -1,8 +1,10 @@
-package main
+package intcode
 
 import (
 	"strconv"
 	"strings"
+
+	"github.com/seiffert/advent-of-code/2019/lib"
 )
 
 func Parse(in string) []int {
@@ -12,7 +14,7 @@ func Parse(in string) []int {
 	for _, v := range vs {
 		i, err := strconv.Atoi(v)
 		if err != nil {
-			i = -1
+			lib.Abort("invalid intcode instruction: %w", err)
 		}
 		p = append(p, i)
 	}

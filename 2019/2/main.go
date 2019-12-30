@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/seiffert/advent-of-code/2019/lib"
+	"github.com/seiffert/advent-of-code/2019/lib/intcode"
 )
 
 func main() {
@@ -12,8 +13,8 @@ func main() {
 		lib.Abort("expects the input as argument, got none")
 	}
 
-	p := Parse(os.Args[1])
-	c := NewComputer(p, 12, 2)
+	p := intcode.Parse(os.Args[1])
+	c := intcode.NewComputer(p, 12, 2)
 
 	result, err := c.Calculate()
 	if err != nil {
@@ -23,7 +24,7 @@ func main() {
 	fmt.Printf("Result for noun 12 and verb 2: %d\n", result)
 
 	noun, verb, err := IterMatrix(func(noun, verb int) error {
-		c := NewComputer(p, noun, verb)
+		c := intcode.NewComputer(p, noun, verb)
 
 		result, err := c.Calculate()
 		if err != nil {
