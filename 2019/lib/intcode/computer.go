@@ -2,8 +2,6 @@ package intcode
 
 import (
 	"fmt"
-
-	"github.com/seiffert/advent-of-code/2019/lib"
 )
 
 const (
@@ -25,12 +23,25 @@ func NewComputer(p []int) *Computer {
 	mem := append([]int(nil), p...)
 	return &Computer{
 		memory: mem,
+		input:  StdinReceiver,
+		output: StdoutSender,
 	}
 }
 
 type Computer struct {
 	memory []int
 	ic     int
+
+	input  InputReceiver
+	output OutputSender
+}
+
+func (c *Computer) SetInputReceiver(in InputReceiver) {
+	c.input = in
+}
+
+func (c *Computer) SetOutputSender(out OutputSender) {
+	c.output = out
 }
 
 func (c *Computer) Calculate() error {
@@ -57,24 +68,10 @@ func (c *Computer) Calculate() error {
 			)
 			c.ic += 4
 		case opcodeInput:
-			var (
-				valid bool
-				input int
-			)
-
-			for !valid {
-				fmt.Println("Input value (integer):")
-				if _, err := fmt.Scanf("%d", &input); err != nil {
-					lib.LogError("invalid input: %w", err)
-				} else {
-					valid = true
-				}
-			}
-
-			c.Set(c.Get(c.ic+1, ModeImmediate), input)
+			c.Set(c.Get(c.ic+1, ModeImmediate), c.input())
 			c.ic += 2
 		case opcodeOutput:
-			fmt.Printf("Output: %d\n", c.Get(c.ic+1, param1Mode))
+			c.output(c.Get(c.ic+1, param1Mode))
 			c.ic += 2
 		case opcodeJumpIfTrue:
 			if c.Get(c.ic+1, param1Mode) != 0 {
