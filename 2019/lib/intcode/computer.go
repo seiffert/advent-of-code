@@ -2,6 +2,8 @@ package intcode
 
 import (
 	"fmt"
+
+	"github.com/seiffert/advent-of-code/2019/lib"
 )
 
 const (
@@ -54,24 +56,26 @@ func (c *Computer) Calculate() error {
 			opcode      = instruction % 100
 			param1Mode  = instruction % 1000 / 100
 			param2Mode  = instruction % 10000 / 1000
-			//param3Mode  = instruction % 100000 / 10000
+			param3Mode  = instruction % 100000 / 10000
 		)
 
 		switch opcode {
 		case opcodeAdd:
 			c.Set(
-				c.Get(c.ic+3, ModeImmediate),
+				c.ic+3,
 				c.Get(c.ic+1, param1Mode)+c.Get(c.ic+2, param2Mode),
+				param3Mode,
 			)
 			c.ic += 4
 		case opcodeMultiply:
 			c.Set(
-				c.Get(c.ic+3, ModeImmediate),
+				c.ic+3,
 				c.Get(c.ic+1, param1Mode)*c.Get(c.ic+2, param2Mode),
+				param3Mode,
 			)
 			c.ic += 4
 		case opcodeInput:
-			c.Set(c.Get(c.ic+1, ModeImmediate), c.input())
+			c.Set(c.ic+1, c.input(), param1Mode)
 			c.ic += 2
 		case opcodeOutput:
 			c.output(c.Get(c.ic+1, param1Mode))
@@ -90,16 +94,16 @@ func (c *Computer) Calculate() error {
 			}
 		case opcodeLessThan:
 			if c.Get(c.ic+1, param1Mode) < c.Get(c.ic+2, param2Mode) {
-				c.Set(c.Get(c.ic+3, ModeImmediate), 1)
+				c.Set(c.ic+3, 1, param3Mode)
 			} else {
-				c.Set(c.Get(c.ic+3, ModeImmediate), 0)
+				c.Set(c.ic+3, 0, param3Mode)
 			}
 			c.ic += 4
 		case opcodeEquals:
 			if c.Get(c.ic+1, param1Mode) == c.Get(c.ic+2, param2Mode) {
-				c.Set(c.Get(c.ic+3, ModeImmediate), 1)
+				c.Set(c.ic+3, 1, param3Mode)
 			} else {
-				c.Set(c.Get(c.ic+3, ModeImmediate), 0)
+				c.Set(c.ic+3, 0, param3Mode)
 			}
 			c.ic += 4
 		case opcodeSetRelBase:
@@ -127,7 +131,18 @@ func (c *Computer) Get(addr, mode int) int {
 	return 0
 }
 
-func (c *Computer) Set(addr, val int) {
+func (c *Computer) Set(addr, val, mode int) {
+	switch mode {
+	case ModePosition:
+		addr = c.Get(addr, ModeImmediate)
+	case ModeRelBase:
+		addr = c.Get(addr, ModeImmediate) + c.relBase
+	case ModeImmediate:
+		fallthrough
+	default:
+		lib.Abort("invalid param mode %d for input opcode", mode)
+	}
+
 	if addr >= len(c.memory) {
 		c.growMemory(addr - len(c.memory) + 1)
 	}
