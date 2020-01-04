@@ -16,6 +16,7 @@ func StdinReceiver() int {
 	)
 
 	for !valid {
+		fmt.Println("Expecting input:")
 		if _, err := fmt.Scanf("%d", &input); err != nil {
 			lib.LogError("invalid input: %w", err)
 		} else {

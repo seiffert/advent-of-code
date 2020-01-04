@@ -7,6 +7,7 @@ import (
 const (
 	ModePosition  = 0
 	ModeImmediate = 1
+	ModeRelBase   = 2
 
 	opcodeAdd         = 1
 	opcodeMultiply    = 2
@@ -16,6 +17,7 @@ const (
 	opcodeJumpIfFalse = 6
 	opcodeLessThan    = 7
 	opcodeEquals      = 8
+	opcodeSetRelBase  = 9
 	opcodeTerminate   = 99
 )
 
@@ -29,8 +31,9 @@ func NewComputer(p []int) *Computer {
 }
 
 type Computer struct {
-	memory []int
-	ic     int
+	memory  []int
+	ic      int
+	relBase int
 
 	input  InputReceiver
 	output OutputSender
@@ -99,6 +102,9 @@ func (c *Computer) Calculate() error {
 				c.Set(c.Get(c.ic+3, ModeImmediate), 0)
 			}
 			c.ic += 4
+		case opcodeSetRelBase:
+			c.relBase += c.Get(c.ic+1, param1Mode)
+			c.ic += 2
 		case opcodeTerminate:
 			return nil
 		default:
@@ -108,8 +114,11 @@ func (c *Computer) Calculate() error {
 }
 
 func (c *Computer) Get(addr, mode int) int {
-	if mode == ModePosition {
+	switch mode {
+	case ModePosition:
 		addr = c.Get(addr, ModeImmediate)
+	case ModeRelBase:
+		addr = c.Get(addr, ModeImmediate) + c.relBase
 	}
 
 	if addr < len(c.memory) {
