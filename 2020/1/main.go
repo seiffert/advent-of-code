@@ -3,23 +3,18 @@ package main
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"math/rand"
 	"os"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/seiffert/advent-of-code/2020/lib"
 )
 
 func main() {
-	input, err := ioutil.ReadFile("input.txt")
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "failed to read input file: %v\n", err)
-		os.Exit(1)
-	}
-
-	list, err := parseIntList(input)
+	list, err := parseIntList(lib.MustReadFile("input.txt"))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to parse list of numbers: %v\n", err)
 		os.Exit(1)
