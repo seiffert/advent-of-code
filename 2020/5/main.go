@@ -15,7 +15,7 @@ var (
 )
 
 func main() {
-	list := NewSeatList(string(lib.MustReadFile("input.txt")))
+	list := NewSeatList(lib.MustReadFile("input.txt"))
 	fmt.Printf("the highest set ID is %d\n", list.HighestSeatID())
 	fmt.Printf("my seat is %d\n", list.MySeatID())
 }

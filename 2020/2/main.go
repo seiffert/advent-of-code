@@ -14,7 +14,7 @@ var pwdLineRegexp = regexp.MustCompile(`^([0-9]+)-([0-9]+) ([a-z]): (\w+)$`)
 func main() {
 	input := lib.MustReadFile("input.txt")
 
-	pwds, err := ParsePasswordList(strings.Split(string(input), "\n"))
+	pwds, err := ParsePasswordList(strings.Split(input, "\n"))
 	if err != nil {
 		lib.Abort("failed to parse passwords: %v", err)
 	}

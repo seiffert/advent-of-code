@@ -37,9 +37,9 @@ func main() {
 type Map [][]bool
 type Slope struct{ right, down int }
 
-func NewMap(input []byte) Map {
+func NewMap(input string) Map {
 	var (
-		lines = strings.Split(string(input), "\n")
+		lines = strings.Split(input, "\n")
 		m     = make(Map, 0, len(lines))
 	)
 	for _, line := range lines {

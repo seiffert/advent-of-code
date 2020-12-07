@@ -7,7 +7,7 @@ import (
 )
 
 func TestCountTrees(t *testing.T) {
-	input := []byte(`..##.......
+	input := `..##.......
 #...#...#..
 .#....#..#.
 ..#.#...#.#
@@ -17,8 +17,7 @@ func TestCountTrees(t *testing.T) {
 .#........#
 #.##...#...
 #...##....#
-.#..#...#.#
-`)
+.#..#...#.#`
 
 	require.Equal(t, 7, NewMap(input).CountTrees(Slope{3, 1}))
 }

@@ -9,13 +9,13 @@ import (
 func TestFindNIntsWithSum(t *testing.T) {
 	var (
 		r     = require.New(t)
-		input = []byte(`1721
+		input = `1721
 979
 366
 299
 675
 1456
-`)
+`
 	)
 
 	list, err := parseIntList(input)

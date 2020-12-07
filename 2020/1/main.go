@@ -58,9 +58,9 @@ func FindNIntsWithSum(n, expectedSum int, list []int) (result []int, err error) 
 	return result, ctx.Err()
 }
 
-func parseIntList(list []byte) ([]int, error) {
+func parseIntList(list string) ([]int, error) {
 	var (
-		numbers = strings.Split(string(list), "\n")
+		numbers = strings.Split(list, "\n")
 		ints    = make([]int, 0, len(numbers))
 	)
 

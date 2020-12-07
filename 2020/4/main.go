@@ -27,8 +27,8 @@ func main() {
 type PassportList []Passport
 type Passport map[string]string
 
-func NewPassportList(input []byte) PassportList {
-	rawPassports := strings.Split(string(input), "\n\n")
+func NewPassportList(input string) PassportList {
+	rawPassports := strings.Split(input, "\n\n")
 	list := make(PassportList, 0, len(rawPassports))
 	for _, raw := range rawPassports {
 		list = append(list, NewPassport(raw))
