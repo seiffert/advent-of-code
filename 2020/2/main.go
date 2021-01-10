@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/seiffert/advent-of-code/2020/lib"
+	"github.com/seiffert/advent-of-code/lib"
 )
 
 var pwdLineRegexp = regexp.MustCompile(`^([0-9]+)-([0-9]+) ([a-z]): (\w+)$`)

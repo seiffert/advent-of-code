@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/seiffert/advent-of-code/2020/lib"
+	"github.com/seiffert/advent-of-code/lib"
 )
 
 var (
