@@ -17,5 +17,6 @@ func Test(t *testing.T) {
 	r.NoError(err)
 	r.Len(pwds, 3)
 
-	r.Equal(2, CountValidPasswords(pwds))
+	valid, _ := CountValidPasswords(pwds)
+	r.Equal(2, valid)
 }
