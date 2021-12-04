@@ -9,3 +9,10 @@ func MustInt(in string) int {
 	}
 	return n
 }
+
+func MustAllInts(in []string) (out []int) {
+	for _, i := range in {
+		out = append(out, MustInt(i))
+	}
+	return
+}
